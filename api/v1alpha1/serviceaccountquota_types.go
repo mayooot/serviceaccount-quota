@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -25,21 +26,41 @@ import (
 
 // ServiceAccountQuotaSpec defines the desired state of ServiceAccountQuota.
 type ServiceAccountQuotaSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// ServiceAccountName specifies the ServiceAccount name this quota applies to
+	// +kubebuilder:validation:Required
+	ServiceAccountName string `json:"serviceAccountName"`
 
-	// Foo is an example field of ServiceAccountQuota. Edit serviceaccountquota_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Hard is the set of desired hard limits for each named resource
+	// +optional
+	Hard corev1.ResourceList `json:"hard,omitempty"`
 }
 
 // ServiceAccountQuotaStatus defines the observed state of ServiceAccountQuota.
 type ServiceAccountQuotaStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Hard is the set of enforced hard limits for each named resource.
+	// +optional
+	Hard corev1.ResourceList `json:"hard,omitempty"`
+
+	// Used is the current observed resource usage.
+	// +optional
+	Used corev1.ResourceList `json:"used,omitempty"`
+
+	// QuotaSummary provides a human-readable summary of used and hard limits in the format "resource: used/hard".
+	// +optional
+	QuotaSummary string `json:"quotaSummary,omitempty"`
+
+	// LastReconciled indicates the last time the quota was reconciled.
+	// +optional
+	LastReconciled *metav1.Time `json:"lastReconciled,omitempty"`
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster,shortName=aq
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="ServiceAccount",type="string",JSONPath=".spec.serviceAccountName",description="Target ServiceAccount"
+// +kubebuilder:printcolumn:name="Quota",type="string",JSONPath=".status.quotaSummary",description="Resource usage and limits"
+// +kubebuilder:printcolumn:name="LastReconciled",type="date",JSONPath=".status.lastReconciled",description="Last reconciliation time"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Time since creation"
 
 // ServiceAccountQuota is the Schema for the serviceaccountquotas API.
 type ServiceAccountQuota struct {

@@ -21,4 +21,4 @@ spec:
             - --secret-name=sqquota-webhook-certs
             - --cert-name=cert
             - --key-name=key
-            - --host=webhook.$(NAMESPACE).svc
+            - --host=serviceaccount-quota-webhook.$(NAMESPACE).svc

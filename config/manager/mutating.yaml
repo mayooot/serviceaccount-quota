@@ -1,0 +1,21 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: sa-quota-mutating-webhook
+webhooks:
+  - name: sa-quota.mutating.svc
+    clientConfig:
+      service:
+        name: serviceaccount-quota-webhook
+        namespace: serviceaccount-quota-system
+        path: "/mutating"
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJkVENDQVJ1Z0F3SUJBZ0lRVi9UV0JNM2FsTkJLMDhTbXVXTkY1REFLQmdncWhrak9QUVFEQWpBUE1RMHcKQ3dZRFZRUUtFd1J1YVd3eE1DQVhEVEkxTURneU1ERXhNRGt5TmxvWUR6SXhNalV3TnpJM01URXdPVEkyV2pBUApNUTB3Q3dZRFZRUUtFd1J1YVd3eE1Ga3dFd1lIS29aSXpqMENBUVlJS29aSXpqMERBUWNEUWdBRWdRY0xUb2Y3CjZBQkN0OEwzUmdlRHgrNzNiS2U4MDdOZnoxa3hERzlvak9ZakVMOG1tUUhxNWI0S3l4VXBtTW92ZkErTmdmU3AKWkErVnprNVBjb3VvODZOWE1GVXdEZ1lEVlIwUEFRSC9CQVFEQWdJRU1CTUdBMVVkSlFRTU1Bb0dDQ3NHQVFVRgpCd01CTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3SFFZRFZSME9CQllFRkhVL2pMMW8zUWJNSWczVEJoelo3QlZiCllPc1lNQW9HQ0NxR1NNNDlCQU1DQTBnQU1FVUNJR2dpbGx1bWxFNDVRa0YrWXZlRTZMakdzZ2xDdTEwd3hwaEkKM0hnY3pnSVRBaUVBaVo1NytqRW1BcXo4VDkzdmZhQk9sc2V6RjZoUjF5d1J3Wk56Z2NaVzl2RT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: ["*"]
+        apiVersions: ["*"]
+        resources: ["*"]
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
+    timeoutSeconds: 10
+    failurePolicy: Fail

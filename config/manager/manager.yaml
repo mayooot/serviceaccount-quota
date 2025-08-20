@@ -63,7 +63,11 @@ spec:
         args:
           - --leader-elect
           - --health-probe-bind-address=:8081
+          - --webhook-cert-path=/etc/webhook/certs
+          - --webhook-cert-name=cert
+          - --webhook-cert-key=key
         image: controller:latest
+        imagePullPolicy: IfNotPresent
         name: manager
         ports: []
         securityContext:
@@ -92,7 +96,13 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
-        volumeMounts: []
-      volumes: []
+        volumeMounts:
+          - name: webhook-certs
+            mountPath: /etc/webhook/certs
+            readOnly: true
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: sqquota-webhook-certs
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10

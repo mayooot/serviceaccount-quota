@@ -20,6 +20,14 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+- apiGroups:
   - quota.mayooot.github.io
   resources:
   - serviceaccountquotas

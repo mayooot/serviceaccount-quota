@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: certgen-job
+spec:
+  template:
+    spec:
+      serviceAccountName: controller-manager
+      restartPolicy: OnFailure
+      containers:
+        - name: kube-webhook-certgen
+          image: liangjw/kube-webhook-certgen:v1.1.1
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          args:
+            - create
+            - --namespace=$(NAMESPACE)
+            - --secret-name=sqquota-webhook-certs
+            - --cert-name=cert
+            - --key-name=key
+            - --host=webhook.$(NAMESPACE).svc

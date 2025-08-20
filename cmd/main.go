@@ -19,6 +19,7 @@ package main
 import (
 	"crypto/tls"
 	"flag"
+	webhook2 "github.com/mayooot/serviceaccount-quota/pkg/webhook"
 	"os"
 	"path/filepath"
 
@@ -235,6 +236,8 @@ func main() {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
+
+	mgr.GetWebhookServer().Register("/mutating", webhook2.NewMutating())
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {

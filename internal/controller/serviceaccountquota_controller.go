@@ -94,7 +94,7 @@ func (r *ServiceAccountQuotaReconciler) Reconcile(ctx context.Context, req ctrl.
 	}); err != nil {
 		return ctrl.Result{}, err
 	}
-
+	podResourceQuota := resource.MustParse("1")
 	for _, pod := range podList.Items {
 		namespaceName := pod.Namespace + "/" + pod.Name
 		saName, hasAnnotation := pod.Annotations[annotations.ServiceAccountKey]
@@ -108,7 +108,7 @@ func (r *ServiceAccountQuotaReconciler) Reconcile(ctx context.Context, req ctrl.
 			// Count the pod itself
 			if _, exists := quota.Spec.Hard[corev1.ResourcePods]; exists {
 				oldQuantity := used[corev1.ResourcePods]
-				oldQuantity.Add(resource.MustParse("1"))
+				oldQuantity.Add(podResourceQuota)
 				used[corev1.ResourcePods] = oldQuantity
 			}
 

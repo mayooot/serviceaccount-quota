@@ -19,6 +19,10 @@ package controller
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/mayooot/serviceaccount-quota/pkg/annotations"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -31,9 +35,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sort"
-	"strings"
-	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -93,7 +94,7 @@ func (r *ServiceAccountQuotaReconciler) Reconcile(ctx context.Context, req ctrl.
 	}); err != nil {
 		return ctrl.Result{}, err
 	}
-
+	podResourceQuota := resource.MustParse("1")
 	for _, pod := range podList.Items {
 		namespaceName := pod.Namespace + "/" + pod.Name
 		saName, hasAnnotation := pod.Annotations[annotations.ServiceAccountKey]
@@ -104,6 +105,13 @@ func (r *ServiceAccountQuotaReconciler) Reconcile(ctx context.Context, req ctrl.
 
 		// Only count resources for Pending or Running pods
 		if pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodPending {
+			// Count the pod itself
+			if _, exists := quota.Spec.Hard[corev1.ResourcePods]; exists {
+				oldQuantity := used[corev1.ResourcePods]
+				oldQuantity.Add(podResourceQuota)
+				used[corev1.ResourcePods] = oldQuantity
+			}
+
 			for _, container := range append(pod.Spec.InitContainers, pod.Spec.Containers...) {
 				for resourceName, quantity := range container.Resources.Requests {
 					rName := "requests." + string(resourceName)
@@ -268,9 +276,9 @@ func (r *ServiceAccountQuotaReconciler) SetupWithManager(mgr ctrl.Manager) error
 				}
 
 				// Only handle pods that are not in the same phase
-				//if oldPod.Status.Phase == newPod.Status.Phase {
+				// if oldPod.Status.Phase == newPod.Status.Phase {
 				//	return
-				//}
+				// }
 
 				var quotaList quotav1alpha1.ServiceAccountQuotaList
 				if err := r.List(ctx, &quotaList, client.MatchingFields{"spec.serviceAccountName": saName}); err != nil {

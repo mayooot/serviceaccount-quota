@@ -106,10 +106,10 @@ func (r *ServiceAccountQuotaReconciler) Reconcile(ctx context.Context, req ctrl.
 		// Only count resources for Pending or Running pods
 		if pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodPending {
 			// Count the pod itself
-			if _, exists := quota.Spec.Hard["pods"]; exists {
-				oldQuantity := used["pods"]
+			if _, exists := quota.Spec.Hard[corev1.ResourcePods]; exists {
+				oldQuantity := used[corev1.ResourcePods]
 				oldQuantity.Add(resource.MustParse("1"))
-				used["pods"] = oldQuantity
+				used[corev1.ResourcePods] = oldQuantity
 			}
 
 			for _, container := range append(pod.Spec.InitContainers, pod.Spec.Containers...) {

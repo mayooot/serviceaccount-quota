@@ -4,6 +4,11 @@ on:
   issue_comment:
     types: [created]
 
+permissions:   # 👈 确保 GITHUB_TOKEN 有权限
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   slash_command:
     runs-on: ubuntu-latest
@@ -46,7 +51,7 @@ jobs:
       - name: Extract assignee
         id: extract
         run: |
-          # 从评论内容里提取 "@xxx"
+          # 从评论里提取 "/assign @xxx"
           ASSIGNEE=$(echo "${{ github.event.comment.body }}" | sed -n 's/\/assign @\([a-zA-Z0-9_-]*\).*/\1/p')
           echo "assignee=$ASSIGNEE" >> $GITHUB_OUTPUT
 

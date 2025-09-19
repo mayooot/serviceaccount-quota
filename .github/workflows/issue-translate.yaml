@@ -6,7 +6,7 @@ on:
     types: [opened]
 
 jobs:
-  translate: # make sure the action works on a clean machine without building
+  translate:
     runs-on: ubuntu-latest
     steps:
       - uses: tomsun28/issues-translate-action@v2.7
